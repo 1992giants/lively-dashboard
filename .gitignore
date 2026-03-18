@@ -1,0 +1,9 @@
+# Claude Code 내부 폴더
+.claude/
+
+# OS 생성 파일
+.DS_Store
+Thumbs.db
+
+# 로그
+*.log
