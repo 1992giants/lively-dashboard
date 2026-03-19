@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lively 업무 대시보드 v1</title>
+  <title>Lively 업무 대시보드 v2</title>
   <link rel="stylesheet" href="./style.css" />
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -13,10 +13,9 @@
 
   <main class="dashboard-wrapper">
     <div class="dashboard">
-      
-      <!-- Top: Header Area
-           구조: [시간/날짜(왼쪽)] vs [편집/설정+상태(오른쪽)]
-           header-actions를 status-section 안으로 이동 → 겹침 제거 -->
+
+      <!-- ── 헤더 ──
+           왼쪽: 시계/날짜 | 오른쪽: 편집/설정 + 상태 배지 + 모드/컨디션 버튼 -->
       <header class="card header-card" id="headerCard">
 
         <div class="time-section">
@@ -26,110 +25,138 @@
         </div>
 
         <div class="status-section">
-          <!-- 편집/설정 버튼: status-section 최상단에 배치 (절대위치 제거) -->
           <div class="header-actions">
             <button id="editModeToggle" class="btn btn-ghost">✏️ 편집</button>
-            <button id="settingsBtn" class="btn btn-ghost btn-icon-only" title="설정">⚙️</button>
+            <button id="settingsBtn"    class="btn btn-ghost btn-icon-only" title="설정">⚙️</button>
           </div>
+
           <p class="subtext-label status-label">My Status</p>
-          <div class="status-badge" id="currentStatusBadge">👨‍💻 집중 업무</div>
-          <!-- 미니 상태 버튼 -->
+          <div class="status-badge" id="currentStatusBadge">👨‍💻 집중 업무  😐 보통</div>
+
+          <!-- 업무 모드 버튼 -->
           <div class="header-status-btns">
-            <button class="status-btn status-btn-mini" data-status="👨‍💻 집중 업무" data-color="#f4a2b9" title="집중 업무">👨‍💻</button>
-            <button class="status-btn status-btn-mini" data-status="👥 회의 중"   data-color="#b8a7db" title="회의 중">👥</button>
-            <button class="status-btn status-btn-mini" data-status="☕ 휴식"      data-color="#aaccce" title="휴식">☕</button>
-            <button class="status-btn status-btn-mini" data-status="🏃 외근"      data-color="#f4c979" title="외근">🏃</button>
+            <button class="status-mode-btn" data-mode-id="focus"   title="집중 업무">👨‍💻</button>
+            <button class="status-mode-btn" data-mode-id="meeting" title="회의 중">👥</button>
+            <button class="status-mode-btn" data-mode-id="break"   title="휴식">☕</button>
+            <button class="status-mode-btn" data-mode-id="outside" title="외근">🏃</button>
+          </div>
+
+          <!-- 컨디션 버튼 -->
+          <div class="header-condition-btns">
+            <button class="status-condition-btn" data-condition-id="great"  title="좋음">😊</button>
+            <button class="status-condition-btn" data-condition-id="normal" title="보통">😐</button>
+            <button class="status-condition-btn" data-condition-id="tired"  title="피곤">😴</button>
+            <button class="status-condition-btn" data-condition-id="bad"    title="힘듦">😰</button>
           </div>
         </div>
 
       </header>
 
-      <!-- 오늘 요약 바: 일정/할일/D-day 한눈에 -->
+      <!-- 오늘 요약 바 -->
       <div id="summaryBar" class="summary-bar"></div>
 
-      <!-- Middle & Bottom -->
+      <!-- 카드 그리드 -->
       <section class="grid">
-        
-        <!-- 1. 오늘 우선순위 -->
-        <article class="card" data-card="priority">
-          <h2 class="card-title">⭐ 오늘 우선순위 Top 3</h2>
-          <p class="card-subtext">가장 중요한 3가지를 적어두세요.</p>
-          <ul id="priorityList" class="priority-list"></ul>
-        </article>
 
-        <!-- 2. 문서/링크 -->
-        <article class="card" data-card="links">
-          <h2 class="card-title">🔗 문서/링크 빠른 접근</h2>
-          <p class="card-subtext">자주 쓰는 웹사이트나 작업 문서를 등록하세요.</p>
-          <div class="inline-form">
-            <input type="text" id="linkName" placeholder="이름 (예: 구글)" maxlength="15" class="input-short" />
-            <input type="url"  id="linkUrl"  placeholder="URL (https://...)" class="input-flex" />
-            <button id="addLinkBtn" class="btn btn-secondary">추가</button>
-          </div>
-          <div id="quickLinksContainer" class="quick-links-grid"></div>
-        </article>
-
-        <!-- 3. D-day 타이머 -->
-        <article class="card" data-card="dday">
-          <h2 class="card-title">🎯 D-day 타이머</h2>
-          <p class="card-subtext">중요한 마감일을 표시합니다.</p>
-          <div class="inline-form">
-            <input type="text" id="ddayTitle" placeholder="목표 (예: 발표)" maxlength="20" class="input-flex" />
-            <input type="text" id="ddayDate"  placeholder="날짜 선택" class="input-date-fixed" readonly />
-            <button id="addDdayBtn" class="btn btn-secondary">저장</button>
-          </div>
-          <ul id="ddayList" class="list"></ul>
-        </article>
-
-        <!-- 4. 오늘 일정 -->
+        <!-- 1. 오늘 일정 -->
         <article class="card" data-card="schedule">
           <h2 class="card-title">🗓️ 오늘 일정</h2>
           <p class="card-subtext">시간순으로 자동 정렬됩니다.</p>
           <div class="inline-form">
-            <input type="text" id="scheduleTime" placeholder="시간 선택" class="input-time-fixed" readonly />
-            <input type="text" id="scheduleText" placeholder="일정 입력" maxlength="30" class="input-flex" />
+            <input type="text" id="scheduleTime" placeholder="시간 선택"  class="input-time-fixed" readonly />
+            <input type="text" id="scheduleText" placeholder="일정 입력"  class="input-flex" maxlength="30" />
             <button id="addScheduleBtn" class="btn btn-secondary">추가</button>
           </div>
           <ul id="scheduleList" class="list"></ul>
         </article>
 
-        <!-- 5. 할 일 (To-Do) -->
+        <!-- 2. 할 일 (오늘 우선순위 Top 3 포함) -->
         <article class="card" data-card="todos">
-          <h2 class="card-title">✅ 할 일 목록</h2>
+          <h2 class="card-title">✅ 할 일</h2>
+
+          <!-- 오늘 우선순위 Top 3 (항상 표시) -->
+          <div class="todos-priority-section">
+            <h3 class="section-subtitle">⭐ 오늘 우선순위</h3>
+            <ul id="priorityList" class="priority-list"></ul>
+          </div>
+
+          <!-- Quick Add -->
           <div class="quick-adds">
             <span class="quick-adds-label">Quick Add:</span>
             <div id="quickAddContainer" class="quick-adds-container"></div>
           </div>
+
+          <!-- 할 일 추가 폼 -->
           <div class="inline-form mt-2">
-            <input type="text" id="todoInput" placeholder="새로운 할 일..." maxlength="50" />
+            <input type="text" id="todoInput" placeholder="새로운 할 일..." maxlength="50" class="input-flex" />
             <button id="addTodoBtn" class="btn btn-secondary">추가</button>
           </div>
+
           <ul id="todoList" class="list"></ul>
         </article>
 
-        <!-- 6. 빠른 메모 -->
-        <article class="card" data-card="memo">
-          <h2 class="card-title">📝 빠른 메모</h2>
-          <p class="card-subtext">자유롭게 기록하세요. (자동 저장)</p>
-          <textarea id="memoInput" class="memo-area" placeholder="메모가 없습니다. 편집을 눌러 작성하세요."></textarea>
+        <!-- 3. 우선순위 매트릭스 (전폭) — data-card="memo" 유지 (visibleCards 키 호환) -->
+        <article class="card card-full-width" data-card="memo">
+          <h2 class="card-title">🗂️ 업무 우선순위 매트릭스</h2>
+          <p class="card-subtext">긴급도 × 중요도로 할 일을 분류하세요. (자동 저장)</p>
+          <div id="notesMatrixContainer" class="notes-matrix-grid"></div>
         </article>
 
-        <!-- 7. 상태 제어판 -->
+        <!-- 4. 빠른 링크 -->
+        <article class="card" data-card="links">
+          <h2 class="card-title">🔗 빠른 링크</h2>
+          <p class="card-subtext">자주 쓰는 문서·사이트를 등록하세요.</p>
+          <div class="inline-form">
+            <input type="text" id="linkName" placeholder="이름 (예: 구글)"  maxlength="15" class="input-short" />
+            <input type="url"  id="linkUrl"  placeholder="URL (https://...)" class="input-flex" />
+            <button id="addLinkBtn" class="btn btn-secondary">추가</button>
+          </div>
+          <div id="quickLinksContainer" class="quick-links-list"></div>
+        </article>
+
+        <!-- 5. D-day 타이머 -->
+        <article class="card" data-card="dday">
+          <h2 class="card-title">🎯 D-day 타이머</h2>
+          <p class="card-subtext">중요한 마감일을 표시합니다.</p>
+          <div class="inline-form">
+            <input type="text" id="ddayTitle" placeholder="목표 (예: 발표)" maxlength="20" class="input-flex" />
+            <input type="text" id="ddayDate"  placeholder="날짜 선택"        class="input-date-fixed" readonly />
+            <button id="addDdayBtn" class="btn btn-secondary">저장</button>
+          </div>
+          <ul id="ddayList" class="list"></ul>
+        </article>
+
+        <!-- 6. 상태 제어판 (전폭, 기본 숨김) -->
         <article class="card card-full-width" data-card="statusPanel">
           <h2 class="card-title">🔄 상태 제어판</h2>
-          <p class="card-subtext">클릭하여 현재 상태와 테마 색상을 변경하세요.</p>
-          <div class="status-buttons mt-2">
-            <button class="status-btn" data-status="👨‍💻 집중 업무" data-color="#f4a2b9">👨‍💻 집중 업무</button>
-            <button class="status-btn" data-status="👥 회의 중" data-color="#b8a7db">👥 회의 중</button>
-            <button class="status-btn" data-status="☕ 휴식" data-color="#aaccce">☕ 휴식</button>
-            <button class="status-btn" data-status="🏃 외근" data-color="#f4c979">🏃 외근</button>
+          <p class="card-subtext">업무 모드와 컨디션을 설정하세요.</p>
+          <div class="status-panel-grid mt-2">
+            <div>
+              <p class="status-panel-group-label">업무 모드</p>
+              <div class="status-buttons">
+                <button class="status-mode-btn status-btn-full" data-mode-id="focus">👨‍💻 집중 업무</button>
+                <button class="status-mode-btn status-btn-full" data-mode-id="meeting">👥 회의 중</button>
+                <button class="status-mode-btn status-btn-full" data-mode-id="break">☕ 휴식</button>
+                <button class="status-mode-btn status-btn-full" data-mode-id="outside">🏃 외근</button>
+              </div>
+            </div>
+            <div>
+              <p class="status-panel-group-label">컨디션</p>
+              <div class="status-buttons">
+                <button class="status-condition-btn status-btn-full" data-condition-id="great">😊 좋음</button>
+                <button class="status-condition-btn status-btn-full" data-condition-id="normal">😐 보통</button>
+                <button class="status-condition-btn status-btn-full" data-condition-id="tired">😴 피곤</button>
+                <button class="status-condition-btn status-btn-full" data-condition-id="bad">😰 힘듦</button>
+              </div>
+            </div>
           </div>
         </article>
+
       </section>
     </div>
   </main>
 
-  <!-- 설정 및 백업 모달 -->
+  <!-- 설정 모달 -->
   <div id="settingsModal" class="modal-overlay hidden">
     <div class="modal-content">
       <div class="modal-header">
@@ -137,19 +164,17 @@
         <button id="closeSettingsBtn" class="close-btn">&times;</button>
       </div>
 
-      <!-- 탭 네비게이션 -->
       <div class="settings-tabs">
         <button class="settings-tab-btn active" data-tab="design">🎨 디자인</button>
-        <button class="settings-tab-btn" data-tab="layout">📐 레이아웃</button>
-        <button class="settings-tab-btn" data-tab="cards">📋 카드</button>
-        <button class="settings-tab-btn" data-tab="data">💾 데이터</button>
+        <button class="settings-tab-btn"        data-tab="layout">📐 레이아웃</button>
+        <button class="settings-tab-btn"        data-tab="cards">📋 카드</button>
+        <button class="settings-tab-btn"        data-tab="data">💾 데이터</button>
       </div>
 
       <div class="modal-body">
 
-        <!-- ── TAB 1: 디자인 ── -->
+        <!-- TAB 1: 디자인 -->
         <div class="settings-tab-panel" data-tab="design">
-
           <div class="settings-section">
             <h3>테마</h3>
             <div class="settings-toggle-group">
@@ -157,7 +182,6 @@
               <button class="toggle-option-btn" data-theme-btn="dark">🌙 다크</button>
             </div>
           </div>
-
           <div class="settings-section">
             <h3>포인트 색상</h3>
             <div class="color-preset-grid">
@@ -175,17 +199,14 @@
               </label>
             </div>
           </div>
-
           <div class="settings-section">
             <h3>카드 투명도 <span class="settings-value-label" id="label_cardOpacity">55%</span></h3>
             <input type="range" id="set_cardOpacity" class="settings-slider" min="10" max="100" step="5" value="55" />
           </div>
-
           <div class="settings-section">
             <h3>유리 블러 강도 <span class="settings-value-label" id="label_bgBlur">24px</span></h3>
             <input type="range" id="set_bgBlur" class="settings-slider" min="0" max="60" step="2" value="24" />
           </div>
-
           <div class="settings-section">
             <h3>배경 스타일</h3>
             <div class="settings-toggle-group">
@@ -193,22 +214,18 @@
               <button class="toggle-option-btn" data-bg-btn="1">🪟 완전 투명</button>
             </div>
           </div>
-
         </div>
 
-        <!-- ── TAB 2: 레이아웃 ── -->
+        <!-- TAB 2: 레이아웃 -->
         <div class="settings-tab-panel hidden" data-tab="layout">
-
           <div class="settings-section">
             <h3>전체 크기 배율 <span class="settings-value-label" id="label_dashScale">100%</span></h3>
             <input type="range" id="set_dashScale" class="settings-slider" min="50" max="150" step="5" value="100" />
           </div>
-
           <div class="settings-section">
             <h3>상단 간격 <span class="settings-value-label" id="label_topMargin">40px</span></h3>
             <input type="range" id="set_topMargin" class="settings-slider" min="0" max="500" step="10" value="40" />
           </div>
-
           <div class="settings-section">
             <h3>화면 정렬</h3>
             <div class="settings-toggle-group">
@@ -217,25 +234,21 @@
               <button class="toggle-option-btn" data-align-btn="2">▶ 오른쪽</button>
             </div>
           </div>
-
         </div>
 
-        <!-- ── TAB 3: 카드 ── -->
+        <!-- TAB 3: 카드 -->
         <div class="settings-tab-panel hidden" data-tab="cards">
-
           <div class="settings-section">
             <h3>카드 표시/숨김</h3>
             <div class="visibility-grid">
-              <label><input type="checkbox" id="vis_priority"> 오늘 우선순위</label>
-              <label><input type="checkbox" id="vis_links"> 문서/링크 빠른 접근</label>
-              <label><input type="checkbox" id="vis_dday"> D-day 타이머</label>
               <label><input type="checkbox" id="vis_schedule"> 오늘 일정</label>
-              <label><input type="checkbox" id="vis_todos"> 할 일 목록</label>
-              <label><input type="checkbox" id="vis_memo"> 빠른 메모</label>
+              <label><input type="checkbox" id="vis_todos"> 할 일 (우선순위 포함)</label>
+              <label><input type="checkbox" id="vis_memo"> 우선순위 매트릭스</label>
+              <label><input type="checkbox" id="vis_links"> 빠른 링크</label>
+              <label><input type="checkbox" id="vis_dday"> D-day 타이머</label>
               <label><input type="checkbox" id="vis_statusPanel"> 상태 제어판</label>
             </div>
           </div>
-
           <div class="settings-section">
             <h3>Quick Add 항목 관리</h3>
             <ul id="quickAddSettingsList" class="quick-add-settings-list"></ul>
@@ -244,28 +257,24 @@
               <button id="addQuickAddBtn" class="btn btn-secondary">추가</button>
             </div>
           </div>
-
         </div>
 
-        <!-- ── TAB 4: 데이터 ── -->
+        <!-- TAB 4: 데이터 -->
         <div class="settings-tab-panel hidden" data-tab="data">
-
           <div class="settings-section">
             <h3>UI 설정</h3>
             <label class="switch-item">
               <input type="checkbox" id="set_showSeconds"> 시계 초 단위 표시
             </label>
           </div>
-
           <div class="settings-section">
             <h3>자동 리셋 규칙 (자정 기준)</h3>
             <label><input type="checkbox" id="reset_schedule"> 오늘 일정 목록 지우기</label><br>
-            <label><input type="checkbox" id="reset_todos"> 할 일 목록 쳐내기</label><br>
-            <label><input type="checkbox" id="reset_priority"> 우선순위 3가지 비우기</label>
+            <label><input type="checkbox" id="reset_todos"> 할 일 목록 지우기</label><br>
+            <label><input type="checkbox" id="reset_priority"> 우선순위 Top 3 비우기</label>
           </div>
-
           <div class="settings-section">
-            <h3>백업 및 복원 (Offline)</h3>
+            <h3>백업 및 복원</h3>
             <div class="settings-btn-row">
               <button id="exportJsonBtn" class="btn btn-secondary">⬇️ 파일 백업</button>
               <button id="exportCopyBtn" class="btn btn-ghost btn-border">📋 텍스트 복사</button>
@@ -273,30 +282,27 @@
               <input type="file" id="importFileInput" accept=".json" class="hidden" />
             </div>
             <div id="backupTextArea" class="hidden backup-fallback-area">
-              <p class="backup-fallback-hint">아래 내용을 전체 선택(Ctrl+A) 후 복사해서 .json 파일로 저장하세요.</p>
+              <p class="backup-fallback-hint">아래 내용을 전체 선택(Ctrl+A) 후 복사해서 .json으로 저장하세요.</p>
               <textarea id="backupTextContent" class="backup-textarea" readonly></textarea>
             </div>
           </div>
-
           <div class="settings-section settings-danger-zone">
             <h3 class="danger-title">데이터 초기화</h3>
             <div class="settings-btn-row">
-              <button id="clearTodayBtn" class="btn btn-secondary btn-danger-soft">오늘 일과 비우기</button>
+              <button id="clearTodayBtn"  class="btn btn-secondary btn-danger-soft">오늘 일과 비우기</button>
               <button id="factoryResetBtn" class="btn btn-danger">전체 초기화</button>
             </div>
           </div>
-
         </div>
 
       </div>
     </div>
   </div>
 
-  <!-- 토스트 알림 컨테이너 (alert/confirm 대체) -->
+  <!-- 토스트 알림 컨테이너 -->
   <div id="toastContainer" class="toast-container"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <!-- ✅ npmcdn은 폐쇄됨 → jsdelivr로 교체 -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
   <script src="./app.js"></script>
 </body>
