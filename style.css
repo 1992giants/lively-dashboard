@@ -499,10 +499,10 @@ body:not(.edit-mode) .memo-area {
 /* === Quick Add 버튼 (기존 인라인 스타일 → CSS로) === */
 /* app.js에서 btn btn-ghost로 만들고 있는 quick-btn */
 .quick-btn {
-  padding: 6px 10px !important;
-  font-size: 0.85rem !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 8px !important;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
 }
 
 /* === 토스트 알림 (alert/confirm 대체) === */
@@ -609,6 +609,13 @@ body:not(.edit-mode) .memo-area {
   color: var(--text-main);
 }
 .dday-past-row { opacity: 0.5; }
+
+/* D-day 아이템 내부 레이아웃 */
+.dday-item-title { font-weight: 600; }
+.dday-item-meta  { display: flex; gap: 10px; align-items: center; }
+
+/* 일정 시간 강조 */
+.schedule-time { color: var(--accent-color); font-weight: 700; margin-right: 8px; }
 
 /* ============================================================
    탭형 설정 패널 스타일

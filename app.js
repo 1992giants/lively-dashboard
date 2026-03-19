@@ -122,8 +122,9 @@ function loadState() {
       // JSON 파싱 실패 → 기본값으로 복구
       console.warn("[대시보드] 저장 데이터 파싱 실패, 기본값으로 복구:", e);
       state = def;
-      // 손상된 데이터 백업 후 제거
-      localStorage.setItem(STORAGE_KEY + "-broken-backup", savedV1);
+      // 손상된 데이터를 타임스탬프 키로 백업 (기존 백업 덮어쓰기 방지)
+      const backupKey = `${STORAGE_KEY}-broken-${Date.now()}`;
+      localStorage.setItem(backupKey, savedV1);
       localStorage.removeItem(STORAGE_KEY);
     }
   } else if (oldLegacy) {
@@ -252,11 +253,12 @@ function requireConfirm(btn, confirmText, onConfirm) {
   }, 3000);
 
   btn.addEventListener("click", function handler() {
+    // timeout이 먼저 발동해 confirming 플래그가 이미 지워진 경우 실행 차단
+    if (!btn.dataset.confirming) return;
     clearTimeout(timeoutId);
     btn.textContent = originalText;
     btn.className = originalClass;
     delete btn.dataset.confirming;
-    btn.removeEventListener("click", handler);
     onConfirm();
   }, { once: true });
 }
@@ -397,7 +399,7 @@ function renderDdays() {
     const label = item.diff === 0 ? `D-Day!` : item.diff > 0 ? `D-${item.diff}` : `D+${Math.abs(item.diff)}`;
     const li = document.createElement("li");
     if (isPast) li.className = "dday-past-row";
-    li.innerHTML = `<span style="font-weight:600;">${item.title}</span><div style="display:flex;gap:10px;align-items:center;"><span class="dday-badge ${isPast ? 'dday-past' : ''}">${label}</span><button class="delete-btn" data-id="${item.id}">삭제</button></div>`;
+    li.innerHTML = `<span class="dday-item-title">${item.title}</span><div class="dday-item-meta"><span class="dday-badge ${isPast ? 'dday-past' : ''}">${label}</span><button class="delete-btn" data-id="${item.id}">삭제</button></div>`;
     return li;
   }
 
@@ -460,7 +462,7 @@ function renderSchedule() {
 
   sorted.forEach(s => {
     const li = document.createElement("li");
-    li.innerHTML = `<span><strong style="color:var(--accent-color); margin-right:8px;">${s.time}</strong> ${s.text}</span> <button class="delete-btn" data-id="${s.id}">삭제</button>`;
+    li.innerHTML = `<span><span class="schedule-time">${s.time}</span>${s.text}</span><button class="delete-btn" data-id="${s.id}">삭제</button>`;
     list.appendChild(li);
   });
   list.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = (e) => { state.schedule = state.schedule.filter(i => i.id !== Number(e.target.dataset.id)); saveState(); renderSchedule();});
@@ -537,9 +539,7 @@ function renderQuickAdd() {
   const container = document.getElementById("quickAddContainer");
   container.innerHTML = "";
   state.settings.quickAddItems.forEach(text => {
-    const btn = document.createElement("button"); btn.className = "quick-btn btn btn-ghost"; 
-    btn.style.padding = "6px 10px"; btn.style.fontSize = "0.85rem"; btn.style.border = "1px solid var(--border-color)";
-    btn.style.borderRadius = "8px";
+    const btn = document.createElement("button"); btn.className = "quick-btn btn btn-ghost";
     btn.textContent = text;
     btn.onclick = () => { state.todos.push({id:Date.now(), text, done:false}); saveState(); renderTodos(); };
     container.appendChild(btn);
