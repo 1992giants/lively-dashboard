@@ -773,8 +773,10 @@ function bindEvents() {
     state.memo = e.target.value; saveState();
   };
 
-  document.getElementById("todoInput").onkeydown = (e) => { if (e.key === "Enter") document.getElementById("addTodoBtn").click(); };
-  document.getElementById("scheduleText").onkeydown = (e) => { if (e.key === "Enter") document.getElementById("addScheduleBtn").click(); };
+  // e.isComposing: 한글/중국어 등 IME 조합 중이면 true → Enter 무시
+  // 조합 완성(Enter)과 추가 트리거(Enter)가 겹치는 버그 방지
+  document.getElementById("todoInput").onkeydown = (e) => { if (e.key === "Enter" && !e.isComposing) document.getElementById("addTodoBtn").click(); };
+  document.getElementById("scheduleText").onkeydown = (e) => { if (e.key === "Enter" && !e.isComposing) document.getElementById("addScheduleBtn").click(); };
 
   // 상태 버튼은 편집 모드 없이도 항상 클릭 가능
   // (상태 변경은 데이터 편집이 아닌 빠른 전환 액션이므로)
@@ -901,7 +903,7 @@ function bindEvents() {
     saveState(); renderQuickAdd(); renderQuickAddSettings();
   };
   document.getElementById("newQuickAddInput").onkeydown = (e) => {
-    if (e.key === "Enter") document.getElementById("addQuickAddBtn").click();
+    if (e.key === "Enter" && !e.isComposing) document.getElementById("addQuickAddBtn").click();
   };
 
   // ── 데이터 탭 이벤트 ──
@@ -1004,6 +1006,10 @@ function bindEvents() {
 }
 
 function init() {
+  // CEF에서 wallpaper 창이 비활성 상태로 시작하면 클릭/키보드 입력을 못 받을 수 있음
+  // window.focus()로 창 활성화를 명시적으로 요청
+  try { window.focus(); } catch(e) {}
+
   loadState();
   applyThemeMode();      // ← 저장된 테마를 먼저 적용 (깜빡임 방지)
   applyVisualSettings(); // ← 저장된 시각 설정 복원

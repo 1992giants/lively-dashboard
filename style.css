@@ -63,12 +63,11 @@ body[data-bg-style="transparent"] { background-color: transparent !important; }
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: var(--dashboard-margin-top);
-  transform: scale(var(--dashboard-scale));
-  transform-origin: top center;
   margin-left: var(--dashboard-margin-left);
   margin-right: var(--dashboard-margin-right);
-  /* 콘텐츠가 화면을 넘을 때 스크롤 허용 (월페이퍼답게 스크롤바는 숨김) */
+  /* transform을 여기서 제거 — overflow-y: auto와 transform 동시 사용 시
+     구버전 CEF에서 마우스 이벤트 hit-testing이 깨지는 버그가 있음.
+     transform은 아래 .dashboard로 이동. */
   overflow-y: auto;
   -ms-overflow-style: none;  /* IE/Edge */
   scrollbar-width: none;     /* Firefox */
@@ -82,9 +81,13 @@ body[data-bg-style="transparent"] { background-color: transparent !important; }
   max-width: 1200px;
   padding: 24px;
   padding-bottom: 40px; /* 스크롤 시 하단 여백 확보 */
+  padding-top: var(--dashboard-margin-top);
   display: flex;
   flex-direction: column;
   gap: 20px;
+  /* transform을 scroll 컨테이너 바깥(.dashboard-wrapper)에서 분리 → CEF hit-test 버그 회피 */
+  transform: scale(var(--dashboard-scale));
+  transform-origin: top center;
 }
 
 /* === CARD SYSTEM === */
