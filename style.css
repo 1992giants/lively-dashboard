@@ -575,5 +575,25 @@ body:not(.edit-mode) .priority-input { pointer-events: none; }
 .quick-add-settings-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; background: var(--surface-hover); border-radius: 8px; font-size: 0.9rem; }
 .quick-add-settings-item .delete-btn { font-size: 1rem; padding: 0 4px; }
 
+/* ============================================================
+   카드 이동 버튼 (편집 모드에서만 표시 — edit-only 클래스로 제어)
+   ============================================================ */
+.card-move-btns {
+  display: inline-flex; gap: 2px; margin-left: auto; align-items: center;
+}
+.card-move-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.6rem; cursor: pointer;
+  padding: 2px 7px; border-radius: 5px;
+  line-height: 1.4; font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+.card-move-btn:hover:not(:disabled) {
+  background: var(--surface-hover); color: var(--text-main);
+}
+.card-move-btn:disabled { opacity: 0.2; cursor: default; }
+
 /* Flatpickr */
 .flatpickr-input[readonly] { cursor: pointer; background-color: var(--surface-bg); }

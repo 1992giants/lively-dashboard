@@ -38,6 +38,8 @@ function getDefaultState() {
       themeMode: "light",
       dailyReset: { schedule: true, todos: true, priority: false },
       quickAddItems: ["💧 물 마시기", "🤸 스트레칭", "🪟 환기"],
+      // 카드 순서: 편집 모드에서 ▲▼ 버튼으로 변경 가능
+      cardOrder: ["schedule", "todos", "dday", "memo", "links"],
       visual: {
         accentPreset: "pink",
         accentCustom: "#f4a2b9",
@@ -133,6 +135,14 @@ function validateState(s) {
     s.settings.visual = def.settings.visual;
   } else {
     s.settings.visual = Object.assign({}, def.settings.visual, s.settings.visual);
+  }
+
+  // cardOrder 검증: 5개 카드 ID가 모두 있어야 유효
+  const CARD_IDS = ["schedule", "todos", "dday", "memo", "links"];
+  if (!Array.isArray(s.settings.cardOrder) ||
+      s.settings.cardOrder.length !== CARD_IDS.length ||
+      !CARD_IDS.every(c => s.settings.cardOrder.includes(c))) {
+    s.settings.cardOrder = [...CARD_IDS];
   }
 
   /* ── status 검증 ── */
@@ -814,6 +824,50 @@ function syncSettingsUI() {
   });
 }
 
+/* ==================================================
+   카드 순서 관리
+   - applyCardOrder(): state.settings.cardOrder 배열 순서대로 DOM 재배치
+   - updateMoveButtons(): ▲▼ 버튼 disabled 상태 갱신
+   - moveCard(cardId, dir): dir=-1(위로), dir=+1(아래로)
+   ================================================== */
+function applyCardOrder() {
+  const grid = document.querySelector('.grid');
+  if (!grid) return;
+
+  // statusPanel은 항상 맨 마지막 고정
+  const statusPanel = grid.querySelector('[data-card="statusPanel"]');
+
+  state.settings.cardOrder.forEach(cardId => {
+    const el = grid.querySelector(`[data-card="${cardId}"]`);
+    if (el) grid.insertBefore(el, statusPanel); // statusPanel 바로 앞에 순서대로 삽입
+  });
+
+  updateMoveButtons();
+}
+
+function updateMoveButtons() {
+  const order = state.settings.cardOrder;
+  order.forEach((cardId, idx) => {
+    const card = document.querySelector(`[data-card="${cardId}"]`);
+    if (!card) return;
+    const upBtn   = card.querySelector('.card-move-up');
+    const downBtn = card.querySelector('.card-move-down');
+    if (upBtn)   upBtn.disabled   = (idx === 0);
+    if (downBtn) downBtn.disabled = (idx === order.length - 1);
+  });
+}
+
+function moveCard(cardId, dir) {
+  const order = state.settings.cardOrder;
+  const idx   = order.indexOf(cardId);
+  if (idx < 0) return;
+  const target = idx + dir;
+  if (target < 0 || target >= order.length) return;
+  [order[idx], order[target]] = [order[target], order[idx]];
+  saveState();
+  applyCardOrder();
+}
+
 function applyViewMode() {
   document.body.classList.toggle("edit-mode", isEditMode);
   const tgBtn = document.getElementById("editModeToggle");
@@ -827,6 +881,9 @@ function applyViewMode() {
   document.querySelector('[data-card="todos"]').classList.toggle('hidden', !vis.todos);
   document.querySelector('[data-card="memo"]').classList.toggle('hidden', !vis.memo);
   document.querySelector('[data-card="statusPanel"]').classList.toggle('hidden', vis.statusPanel === false);
+
+  // 카드 순서 DOM 반영 + 이동 버튼 상태 갱신
+  applyCardOrder();
 }
 
 function renderAll() {
@@ -857,6 +914,15 @@ function bindEvents() {
       if (document.activeElement !== e.target) setTimeout(() => e.target.focus(), 0);
     }
   }, true);
+
+  // 카드 이동 버튼 (이벤트 위임 — 그리드 전체)
+  document.querySelector('.grid').addEventListener('click', (e) => {
+    const btn = e.target.closest('.card-move-btn');
+    if (!btn || btn.disabled) return;
+    const cardId = btn.dataset.cardId;
+    const dir    = btn.classList.contains('card-move-up') ? -1 : 1;
+    moveCard(cardId, dir);
+  });
 
   // 편집 모드 토글
   document.getElementById("editModeToggle").onclick = () => {

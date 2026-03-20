@@ -60,7 +60,12 @@
 
         <!-- 1. 오늘 일정 -->
         <article class="card" data-card="schedule">
-          <h2 class="card-title">🗓️ 오늘 일정</h2>
+          <h2 class="card-title">🗓️ 오늘 일정
+            <span class="card-move-btns edit-only">
+              <button class="card-move-btn card-move-up"   data-card-id="schedule" title="위로">▲</button>
+              <button class="card-move-btn card-move-down" data-card-id="schedule" title="아래로">▼</button>
+            </span>
+          </h2>
           <p class="card-subtext">시간순으로 자동 정렬됩니다.</p>
           <div class="inline-form">
             <input type="text" id="scheduleTime" placeholder="시간 선택"  class="input-time-fixed" readonly />
@@ -72,7 +77,12 @@
 
         <!-- 2. 할 일 (오늘 우선순위 Top 3 포함) -->
         <article class="card" data-card="todos">
-          <h2 class="card-title">✅ 할 일</h2>
+          <h2 class="card-title">✅ 할 일
+            <span class="card-move-btns edit-only">
+              <button class="card-move-btn card-move-up"   data-card-id="todos" title="위로">▲</button>
+              <button class="card-move-btn card-move-down" data-card-id="todos" title="아래로">▼</button>
+            </span>
+          </h2>
 
           <!-- 오늘 우선순위 Top 3 (항상 표시) -->
           <div class="todos-priority-section">
@@ -97,7 +107,12 @@
 
         <!-- 3. D-day 타이머 (Row 1 세 번째 컬럼) -->
         <article class="card" data-card="dday">
-          <h2 class="card-title">🎯 D-day 타이머</h2>
+          <h2 class="card-title">🎯 D-day 타이머
+            <span class="card-move-btns edit-only">
+              <button class="card-move-btn card-move-up"   data-card-id="dday" title="위로">▲</button>
+              <button class="card-move-btn card-move-down" data-card-id="dday" title="아래로">▼</button>
+            </span>
+          </h2>
           <p class="card-subtext">중요한 마감일을 표시합니다.</p>
           <div class="inline-form">
             <input type="text" id="ddayTitle" placeholder="목표 (예: 발표)" maxlength="20" class="input-flex" />
@@ -109,14 +124,24 @@
 
         <!-- 4. 우선순위 매트릭스 (2칸) — data-card="memo" 유지 (visibleCards 키 호환) -->
         <article class="card" data-card="memo">
-          <h2 class="card-title">🗂️ 업무 우선순위 매트릭스</h2>
+          <h2 class="card-title">🗂️ 업무 우선순위 매트릭스
+            <span class="card-move-btns edit-only">
+              <button class="card-move-btn card-move-up"   data-card-id="memo" title="위로">▲</button>
+              <button class="card-move-btn card-move-down" data-card-id="memo" title="아래로">▼</button>
+            </span>
+          </h2>
           <p class="card-subtext">긴급도 × 중요도로 할 일을 분류하세요. (자동 저장)</p>
           <div id="notesMatrixContainer" class="notes-matrix-grid"></div>
         </article>
 
         <!-- 5. 빠른 링크 (1칸, 메모 옆에 배치) -->
         <article class="card" data-card="links">
-          <h2 class="card-title">🔗 빠른 링크</h2>
+          <h2 class="card-title">🔗 빠른 링크
+            <span class="card-move-btns edit-only">
+              <button class="card-move-btn card-move-up"   data-card-id="links" title="위로">▲</button>
+              <button class="card-move-btn card-move-down" data-card-id="links" title="아래로">▼</button>
+            </span>
+          </h2>
           <p class="card-subtext">자주 쓰는 문서·사이트를 등록하세요.</p>
           <div class="inline-form">
             <input type="text" id="linkName" placeholder="이름 (예: 구글)"  maxlength="15" class="input-short" />
