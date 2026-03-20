@@ -381,7 +381,7 @@ function renderLinks() {
   container.innerHTML = "";
 
   if (state.links.length === 0) {
-    container.innerHTML = `<div class="empty-state-grid">${
+    container.innerHTML = `<div class="empty-state-flex">${
       isEditMode ? '+ 위 입력란에서 링크를 추가해보세요.' : '등록된 링크가 없습니다.'
     }</div>`;
     return;
@@ -710,7 +710,15 @@ function addMatrixItem(quadrantKey, inputEl) {
   if (!text) return;
   state.notesMatrix[quadrantKey].push({ id: Date.now(), text });
   inputEl.value = "";
-  saveState(); renderNotesMatrix();
+  saveState();
+  renderNotesMatrix();
+  // 재렌더링 후 같은 칸의 input으로 focus 복원
+  if (isEditMode) {
+    const idx     = QUADRANTS.findIndex(q => q.key === quadrantKey);
+    const cells   = document.querySelectorAll('.matrix-cell');
+    const newInp  = cells[idx] ? cells[idx].querySelector('.matrix-input') : null;
+    if (newInp) newInp.focus();
+  }
 }
 
 /* ==================================================
@@ -946,7 +954,10 @@ function bindEvents() {
     const d = document.getElementById("ddayDate").value;
     if (!t || !d) return showToast("목표와 날짜를 올바르게 선택해주세요.", "warn");
     state.ddays.push({ id: Date.now(), title: t, date: d });
-    document.getElementById("ddayTitle").value = ""; document.getElementById("ddayDate").value = "";
+    document.getElementById("ddayTitle").value = "";
+    // flatpickr 인스턴스 내부 상태까지 초기화 (단순 .value="" 로는 미초기화)
+    const ddayFp = document.getElementById("ddayDate")._flatpickr;
+    if (ddayFp) ddayFp.clear(); else document.getElementById("ddayDate").value = "";
     saveState(); renderDdays();
   };
 
@@ -956,7 +967,10 @@ function bindEvents() {
     const txt  = document.getElementById("scheduleText").value.trim();
     if (!time || !txt) return showToast("시간과 일정을 모두 입력해주세요.", "warn");
     state.schedule.push({ id: Date.now(), time, text: txt });
-    document.getElementById("scheduleTime").value = ""; document.getElementById("scheduleText").value = "";
+    // flatpickr 인스턴스 내부 상태까지 초기화
+    const timeFp = document.getElementById("scheduleTime")._flatpickr;
+    if (timeFp) timeFp.clear(); else document.getElementById("scheduleTime").value = "";
+    document.getElementById("scheduleText").value = "";
     saveState(); renderSchedule();
   };
 
@@ -1155,11 +1169,12 @@ function livelyPropertyListener(name, val) {
     case "accentColor":
       if (/^#[0-9a-fA-F]{6}$/.test(val)) { userAccentColor = val; applyCSSColorTheme(val); }
       break;
-    case "theme":
+    case "theme": {
       const themeVal = val === 1 ? 'dark' : 'light';
       document.body.setAttribute('data-theme', themeVal);
       state.settings.themeMode = themeVal; saveState();
       break;
+    }
     case "wallpaperBg":
       document.body.setAttribute('data-bg-style', val === 1 ? 'transparent' : 'normal');
       break;
