@@ -45,7 +45,7 @@ function getDefaultState() {
         bgBlur: 24,
         wallpaperBg: 0,
         dashScale: 100,
-        topMargin: 40,
+        topMargin: 20,
         alignPos: 0
       }
     },

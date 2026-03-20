@@ -73,12 +73,12 @@ body[data-bg-style="transparent"] { background-color: transparent !important; }
 .dashboard {
   width: 100%;
   max-width: 1200px;
-  padding: 24px;
+  padding: 20px;
   padding-top: var(--dashboard-margin-top);
-  padding-bottom: 60px;
+  padding-bottom: 40px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
   /* transform은 scroll 컨테이너 바깥에서 적용 → CEF hit-test 버그 방어 */
   transform: scale(var(--dashboard-scale));
   transform-origin: top center;
@@ -91,8 +91,8 @@ body[data-bg-style="transparent"] { background-color: transparent !important; }
   background: rgba(var(--surface-bg-rgb), var(--card-opacity));
   backdrop-filter: blur(var(--glass-blur-amt));
   -webkit-backdrop-filter: blur(var(--glass-blur-amt));
-  border-radius: 20px;
-  padding: 24px 28px;
+  border-radius: 16px;
+  padding: 18px 22px;
   box-shadow: 0 4px 24px rgba(0,0,0,0.03);
   border: 1px solid rgba(255,255,255,0.4);
   min-width: 0;
@@ -103,9 +103,15 @@ body[data-bg-style="transparent"] { background-color: transparent !important; }
 body[data-theme="light"] { --surface-bg-rgb: 255, 255, 255; }
 body[data-theme="dark"]  { --surface-bg-rgb: 34, 34, 35; }
 
-.card-title   { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
-.card-subtext { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; }
+.card-title   { font-size: 1rem; font-weight: 700; margin-bottom: 2px; color: var(--text-main); display: flex; align-items: center; gap: 6px; }
+.card-subtext { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px; }
 .card-full-width { grid-column: 1 / -1; }
+
+/* 카드별 그리드 배치:
+   Row 1: [schedule(1fr) | todos(1.4fr) | dday(1fr)]
+   Row 2: [memo(span 2)              | links(1fr)]  */
+[data-card="memo"]        { grid-column: span 2; }
+[data-card="statusPanel"] { grid-column: 1 / -1; }
 
 /* ============================================================
    HEADER
@@ -114,7 +120,7 @@ body[data-theme="dark"]  { --surface-bg-rgb: 34, 34, 35; }
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 24px 32px;
+  padding: 18px 28px;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 .header-card.themed-border {
@@ -123,9 +129,9 @@ body[data-theme="dark"]  { --surface-bg-rgb: 34, 34, 35; }
 }
 
 .time-section h1 {
-  font-size: 4rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: var(--text-main);
+  font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; color: var(--text-main);
 }
-.hide-seconds { font-size: 4.5rem !important; }
+.hide-seconds { font-size: 3.5rem !important; }
 .date-text    { font-size: 1rem; color: var(--text-muted); font-weight: 500; margin-top: 6px; }
 
 .subtext-label {
@@ -204,12 +210,12 @@ body[data-theme="dark"]  { --surface-bg-rgb: 34, 34, 35; }
 .status-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
 
 /* ============================================================
-   GRID
+   GRID — 3컬럼 고정: [일정 | 할일(넓게) | D-day]
    ============================================================ */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 20px;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  gap: 16px;
 }
 .hidden { display: none !important; }
 
@@ -258,11 +264,11 @@ input:focus, textarea:focus {
 .mt-2 { margin-top: 8px; }
 .mt-3 { margin-top: 12px; }
 
-.list { list-style: none; display: flex; flex-direction: column; gap: 8px; flex: 1; margin-top: 12px; }
+.list { list-style: none; display: flex; flex-direction: column; gap: 6px; flex: 1; margin-top: 10px; }
 .list li {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 12px 16px; background: var(--surface-hover); border-radius: 12px;
-  font-size: 0.95rem; border: 1px solid transparent;
+  padding: 8px 12px; background: var(--surface-hover); border-radius: 10px;
+  font-size: 0.9rem; border: 1px solid transparent;
 }
 .todo-left { display: flex; align-items: center; gap: 10px; overflow: hidden; }
 .todo-left span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -320,7 +326,7 @@ body.edit-mode .priority-input { background: var(--surface-hover); border-color:
    LINKS — 수직 목록 + 순서 이동
    ============================================================ */
 .quick-links-list {
-  display: flex; flex-direction: column; gap: 8px; margin-top: 12px;
+  display: flex; flex-direction: column; gap: 6px; margin-top: 10px;
 }
 .link-item {
   display: flex; align-items: center; gap: 10px;
@@ -387,16 +393,16 @@ body.edit-mode .priority-input { background: var(--surface-hover); border-color:
 .notes-matrix-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 10px;
   margin-top: 4px;
 }
 .matrix-cell {
   background: var(--surface-hover);
-  border-radius: 14px;
-  padding: 14px 16px;
+  border-radius: 12px;
+  padding: 10px 14px;
   border: 1px solid var(--border-color);
-  display: flex; flex-direction: column; gap: 8px;
-  min-height: 120px;
+  display: flex; flex-direction: column; gap: 6px;
+  min-height: 80px;
 }
 .matrix-cell-header {
   display: flex; justify-content: space-between; align-items: baseline;
@@ -435,7 +441,7 @@ body:not(.edit-mode) .priority-input { pointer-events: none; }
    ============================================================ */
 .summary-bar {
   display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
-  padding: 10px 4px; min-height: 40px;
+  padding: 4px 4px; min-height: 28px;
 }
 .summary-chip {
   display: inline-flex; align-items: center;

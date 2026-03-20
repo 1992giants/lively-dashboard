@@ -95,26 +95,7 @@
           <ul id="todoList" class="list"></ul>
         </article>
 
-        <!-- 3. 우선순위 매트릭스 (전폭) — data-card="memo" 유지 (visibleCards 키 호환) -->
-        <article class="card card-full-width" data-card="memo">
-          <h2 class="card-title">🗂️ 업무 우선순위 매트릭스</h2>
-          <p class="card-subtext">긴급도 × 중요도로 할 일을 분류하세요. (자동 저장)</p>
-          <div id="notesMatrixContainer" class="notes-matrix-grid"></div>
-        </article>
-
-        <!-- 4. 빠른 링크 -->
-        <article class="card" data-card="links">
-          <h2 class="card-title">🔗 빠른 링크</h2>
-          <p class="card-subtext">자주 쓰는 문서·사이트를 등록하세요.</p>
-          <div class="inline-form">
-            <input type="text" id="linkName" placeholder="이름 (예: 구글)"  maxlength="15" class="input-short" />
-            <input type="url"  id="linkUrl"  placeholder="URL (https://...)" class="input-flex" />
-            <button id="addLinkBtn" class="btn btn-secondary">추가</button>
-          </div>
-          <div id="quickLinksContainer" class="quick-links-list"></div>
-        </article>
-
-        <!-- 5. D-day 타이머 -->
+        <!-- 3. D-day 타이머 (Row 1 세 번째 컬럼) -->
         <article class="card" data-card="dday">
           <h2 class="card-title">🎯 D-day 타이머</h2>
           <p class="card-subtext">중요한 마감일을 표시합니다.</p>
@@ -124,6 +105,25 @@
             <button id="addDdayBtn" class="btn btn-secondary">저장</button>
           </div>
           <ul id="ddayList" class="list"></ul>
+        </article>
+
+        <!-- 4. 우선순위 매트릭스 (2칸) — data-card="memo" 유지 (visibleCards 키 호환) -->
+        <article class="card" data-card="memo">
+          <h2 class="card-title">🗂️ 업무 우선순위 매트릭스</h2>
+          <p class="card-subtext">긴급도 × 중요도로 할 일을 분류하세요. (자동 저장)</p>
+          <div id="notesMatrixContainer" class="notes-matrix-grid"></div>
+        </article>
+
+        <!-- 5. 빠른 링크 (1칸, 메모 옆에 배치) -->
+        <article class="card" data-card="links">
+          <h2 class="card-title">🔗 빠른 링크</h2>
+          <p class="card-subtext">자주 쓰는 문서·사이트를 등록하세요.</p>
+          <div class="inline-form">
+            <input type="text" id="linkName" placeholder="이름 (예: 구글)"  maxlength="15" class="input-short" />
+            <input type="url"  id="linkUrl"  placeholder="URL (https://...)" class="input-flex" />
+            <button id="addLinkBtn" class="btn btn-secondary">추가</button>
+          </div>
+          <div id="quickLinksContainer" class="quick-links-list"></div>
         </article>
 
         <!-- 6. 상태 제어판 (전폭, 기본 숨김) -->
