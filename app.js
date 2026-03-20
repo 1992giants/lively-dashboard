@@ -63,7 +63,7 @@ function getDefaultState() {
     todos: {
       priority: ["", "", ""],
       general: [
-        { id: Date.now(), text: "회의 자료 준비", done: false }
+        { id: 1, text: "회의 자료 준비", done: false }
       ],
       collapsedCompleted: true
     },
@@ -74,7 +74,7 @@ function getDefaultState() {
       urgentNotImportant:        [],
       neitherUrgentNorImportant: []
     },
-    links:    [{ id: Date.now() + 1, title: "Lively", url: "https://rocksdanister.github.io/lively/" }],
+    links:    [{ id: 2, title: "Lively", url: "https://rocksdanister.github.io/lively/" }],
     ddays:    [],
     schedule: [],
     memo:     "",   // 하위 호환 보존 (UI 표시 안 함)
@@ -89,6 +89,12 @@ let state = null;
 let isEditMode = false;
 let userAccentColor = null;
 let isDdayPastCollapsed = true;
+let clockTimer = null; // setInterval 핸들 — 재초기화 시 중복 타이머 방지
+
+// 단조 증가 ID 생성기: Date.now()에서 시작해서 같은 ms 내 중복 ID 방지
+// (Date.now()만 쓰면 빠른 연속 추가 시 같은 ID → 삭제 오작동 위험)
+let _idCounter = Date.now();
+function genId() { return ++_idCounter; }
 
 /* ==================================================
    validateState(s)
@@ -624,7 +630,7 @@ function renderQuickAdd() {
     btn.className = "quick-btn btn btn-ghost";
     btn.textContent = text;
     btn.onclick = () => {
-      state.todos.general.push({ id: Date.now(), text, done: false });
+      state.todos.general.push({ id: genId(), text, done: false });
       saveState(); renderTodos();
     };
     container.appendChild(btn);
@@ -708,7 +714,7 @@ function renderNotesMatrix() {
 function addMatrixItem(quadrantKey, inputEl) {
   const text = inputEl.value.trim();
   if (!text) return;
-  state.notesMatrix[quadrantKey].push({ id: Date.now(), text });
+  state.notesMatrix[quadrantKey].push({ id: genId(), text });
   inputEl.value = "";
   saveState();
   renderNotesMatrix();
@@ -850,6 +856,18 @@ function applyCardOrder() {
     if (el) grid.insertBefore(el, statusPanel); // statusPanel 바로 앞에 순서대로 삽입
   });
 
+  // memo는 3번째 위치(Row 2 이후) 이상일 때만 span 2 적용
+  // 3컬럼 그리드에서 Row 2 시작 = 인덱스 3 이상 (0-based)
+  const memoEl = grid.querySelector('[data-card="memo"]');
+  if (memoEl) {
+    const visibleOrder = state.settings.cardOrder.filter(
+      id => state.settings.visibleCards[id] !== false
+    );
+    const memoVisIdx = visibleOrder.indexOf('memo');
+    // 3번째(idx=2) 이하 = Row 1 → span 1, 그 이상 = Row 2+ → span 2
+    memoEl.style.gridColumn = (memoVisIdx >= 0 && memoVisIdx <= 2) ? '' : 'span 2';
+  }
+
   updateMoveButtons();
 }
 
@@ -943,7 +961,7 @@ function bindEvents() {
     let   u = document.getElementById("linkUrl").value.trim();
     if (!n || !u) return showToast("이름과 URL을 모두 입력해주세요.", "warn");
     if (!u.startsWith("http")) u = "https://" + u;
-    state.links.push({ id: Date.now(), title: n, url: u });
+    state.links.push({ id: genId(), title: n, url: u });
     document.getElementById("linkName").value = ""; document.getElementById("linkUrl").value = "";
     saveState(); renderLinks();
   };
@@ -953,7 +971,7 @@ function bindEvents() {
     const t = document.getElementById("ddayTitle").value.trim();
     const d = document.getElementById("ddayDate").value;
     if (!t || !d) return showToast("목표와 날짜를 올바르게 선택해주세요.", "warn");
-    state.ddays.push({ id: Date.now(), title: t, date: d });
+    state.ddays.push({ id: genId(), title: t, date: d });
     document.getElementById("ddayTitle").value = "";
     // flatpickr 인스턴스 내부 상태까지 초기화 (단순 .value="" 로는 미초기화)
     const ddayFp = document.getElementById("ddayDate")._flatpickr;
@@ -966,7 +984,7 @@ function bindEvents() {
     const time = document.getElementById("scheduleTime").value;
     const txt  = document.getElementById("scheduleText").value.trim();
     if (!time || !txt) return showToast("시간과 일정을 모두 입력해주세요.", "warn");
-    state.schedule.push({ id: Date.now(), time, text: txt });
+    state.schedule.push({ id: genId(), time, text: txt });
     // flatpickr 인스턴스 내부 상태까지 초기화
     const timeFp = document.getElementById("scheduleTime")._flatpickr;
     if (timeFp) timeFp.clear(); else document.getElementById("scheduleTime").value = "";
@@ -978,7 +996,7 @@ function bindEvents() {
   document.getElementById("addTodoBtn").onclick = () => {
     const txt = document.getElementById("todoInput").value.trim();
     if (!txt) return;
-    state.todos.general.push({ id: Date.now(), text: txt, done: false });
+    state.todos.general.push({ id: genId(), text: txt, done: false });
     document.getElementById("todoInput").value = "";
     saveState(); renderTodos();
   };
@@ -1152,7 +1170,9 @@ function init() {
   loadState();
   applyThemeMode();
   applyVisualSettings();
-  updateClock(); setInterval(updateClock, 1000);
+  updateClock();
+  if (clockTimer) clearInterval(clockTimer);
+  clockTimer = setInterval(updateClock, 1000);
   bindEvents();
   renderAll();
 }
