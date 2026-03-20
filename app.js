@@ -558,7 +558,16 @@ function renderTodos() {
         state.todos.priority[i] = e.target.value.trim();
         saveState();
       });
-      li.append(num, input);
+      const delBtn = document.createElement("button");
+      delBtn.className = "priority-del-btn";
+      delBtn.textContent = "×";
+      delBtn.title = "지우기";
+      delBtn.onclick = () => {
+        state.todos.priority[i] = "";
+        saveState();
+        renderTodos();
+      };
+      li.append(num, input, delBtn);
       priorityList.appendChild(li);
     }
   }
@@ -644,10 +653,10 @@ function renderQuickAdd() {
    - 보기 모드에서 입력/삭제 버튼 숨김
    ================================================== */
 const QUADRANTS = [
-  { key: "urgentImportant",           label: "🔴 긴급·중요",     desc: "지금 당장" },
-  { key: "importantNotUrgent",        label: "🟡 중요·비긴급",   desc: "일정 잡기" },
-  { key: "urgentNotImportant",        label: "🟠 긴급·비중요",   desc: "위임·빠르게" },
-  { key: "neitherUrgentNorImportant", label: "⚪ 비긴급·비중요", desc: "나중에·제거" }
+  { key: "urgentImportant",           label: "🔴 긴급-중요",     desc: "지금 당장" },
+  { key: "importantNotUrgent",        label: "🟡 비긴급-중요",   desc: "일정 잡기" },
+  { key: "urgentNotImportant",        label: "🟠 긴급-비중요",   desc: "위임·빠르게" },
+  { key: "neitherUrgentNorImportant", label: "⚪ 비긴급-비중요", desc: "나중에·제거" }
 ];
 
 function renderNotesMatrix() {

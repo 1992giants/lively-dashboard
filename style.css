@@ -308,6 +308,13 @@ input:focus, textarea:focus {
 }
 .priority-input { flex: 1; background: transparent; border-color: transparent; font-size: 0.95rem; padding: 4px 8px; margin-left: -8px; }
 body.edit-mode .priority-input { background: var(--surface-hover); border-color: var(--border-color); }
+.priority-del-btn {
+  display: none; background: transparent; border: none;
+  color: var(--text-muted); font-size: 0.85rem; cursor: pointer;
+  padding: 2px 5px; border-radius: 4px; line-height: 1; flex-shrink: 0;
+}
+.priority-del-btn:hover { background: var(--surface-hover); color: var(--text-main); }
+body.edit-mode .priority-del-btn { display: block; }
 
 /* Quick Add */
 .quick-adds           { display: flex; align-items: center; margin-bottom: 12px; }
